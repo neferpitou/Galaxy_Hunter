@@ -3,6 +3,7 @@ package main;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -20,7 +21,49 @@ import entities.Ship;
 @SuppressWarnings("serial")
 public class GalaxyHunterView extends JPanel implements KeyListener, Runnable {
 	
-	private JFrame frame = new JFrame();
+	private class GameFrame extends JFrame {
+		
+		private Image galaxy_image;
+		private int g_img_y, c_img_y;
+		private int img_height;
+		
+		public GameFrame( ){
+			// Ask the kernel to load the image
+			galaxy_image = Kernel.getInstance().loadImage("stars_texture2956.jpg");
+			
+			// Set the location for the first image at the bottom of the screen
+			g_img_y = HEIGHT;						
+			img_height = galaxy_image.getHeight(null);
+			
+			// Set the location of the second image above the first image
+			c_img_y = HEIGHT - img_height;
+		}
+		
+		public void draw (Graphics g){
+			
+			// Scroll both backgrounds
+			g_img_y++;
+			c_img_y++;
+			
+			// Draw the background twice to the panel
+			g.drawImage(galaxy_image, 0, g_img_y, null);
+			g.drawImage(galaxy_image, 0, c_img_y, null);
+			
+			/*
+			 * Calculate if one of the two background images are completely
+			 * off the screen. If so, redraw the image on top of the currently
+			 * visible image
+			 */
+			if (g_img_y > HEIGHT + img_height) 
+				g_img_y = c_img_y - img_height;
+			
+			
+			if (c_img_y > HEIGHT + img_height)
+				c_img_y = g_img_y - img_height;				
+		}
+	}
+	
+	private GameFrame frame = new GameFrame();
 	
 	private final int MOVEMENT_SPEED = 5;
 	private final int WIDTH = 400;
@@ -117,7 +160,10 @@ public class GalaxyHunterView extends JPanel implements KeyListener, Runnable {
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		
+		frame.draw(g);
 		s.draw(g);
+		
 		revalidate();
 	}
 }
