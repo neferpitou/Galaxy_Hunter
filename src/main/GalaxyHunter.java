@@ -6,6 +6,7 @@ public class GalaxyHunter {
 
 	public static void main(String[] args){
 		Kernel.getInstance();
-		new GalaxyHunterView();
+		Kernel.startGame();
+		
 	}
 }

@@ -5,7 +5,8 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import main.GalaxyHunterView;
+import levels.LevelOne;
+import main.GameFrame;
 
 
 /**
@@ -33,6 +34,7 @@ public class Kernel {
 	public static final int HEIGHT = 600;
 	//Private instance reference of the kernel
 	private static final Kernel KERNEL_INSTANCE = new Kernel();
+	private static final GameFrame frame = new GameFrame();
 
 	private Kernel(){  }
 	
@@ -59,6 +61,18 @@ public class Kernel {
 	
 	public static Kernel getInstance(){
 		return KERNEL_INSTANCE;
+	}
+	
+	/**
+	 * Returns the frame panels are drawn on
+	 * @return jframe
+	 */
+	public static GameFrame getBaseJFrame(){
+		return frame;
+	}
+
+	public static void startGame() {
+		new LevelOne();
 	}
 
 }
