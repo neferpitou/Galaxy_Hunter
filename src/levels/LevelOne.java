@@ -1,6 +1,6 @@
 package levels;
 
-import factory.Cruiser;
+import entities.Cruiser;
 
 @SuppressWarnings("serial")
 public class LevelOne extends AbstractLevel  {

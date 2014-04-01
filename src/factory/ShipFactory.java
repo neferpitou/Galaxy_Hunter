@@ -1,5 +1,7 @@
 package factory;
 
+import entities.Cruiser;
+import entities.Player;
 import entities.Ship;
 
 public class ShipFactory {

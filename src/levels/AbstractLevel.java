@@ -11,8 +11,9 @@ import javax.swing.WindowConstants;
 
 import kernel.Kernel;
 import main.GameFrame;
+import entities.Projectile;
 import entities.Ship;
-import factory.Cruiser;
+import entities.Cruiser;
 import factory.ProjectileType;
 import factory.ShipFactory;
 import factory.ShipType;
@@ -30,6 +31,7 @@ public abstract class AbstractLevel extends JPanel implements KeyListener, Runna
 	protected final int SIDE_SCREEN_BUFFER = 0;
 	protected final Ship s = ShipFactory.spawnShip(ShipType.PLAYER, STARTING_X, STARTING_Y);
 	protected final GameFrame frame = Kernel.getBaseJFrame();
+	protected boolean isGameRunning = true;
 	
 	protected ArrayList<Cruiser> enemies = new ArrayList<Cruiser>(10);
 	protected final boolean[] isPressed = new boolean[NUM_KEYS];
@@ -81,7 +83,9 @@ public abstract class AbstractLevel extends JPanel implements KeyListener, Runna
 		super.paintComponent(g);
 
 		frame.draw(g);
-		s.draw(g);
+		
+		if (s.isVisible())
+			s.draw(g);
 		
 		for (int i = 0; i < enemies.size(); i++){
 			enemies.get(i).draw(g);
@@ -92,7 +96,13 @@ public abstract class AbstractLevel extends JPanel implements KeyListener, Runna
 	
 	protected void moveGameObjects() {
 		for (int i = 0; i < enemies.size(); i++){
-			enemies.get(i).move();
+			Cruiser enemy = enemies.get(i);
+			
+			if (enemy.isVisible()){
+				enemy.move();
+			} else {
+				enemies.remove(i);
+			}
 		}
 	}
 	
@@ -137,22 +147,54 @@ public abstract class AbstractLevel extends JPanel implements KeyListener, Runna
 	
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
-		while (true) {
-
+		
+		// Starts the game in it's own thread
+		while (isGameRunning) {
+			
 			respondToInput();
 			moveGameObjects();
+			checkCollisions();
 
 			this.repaint();
 
 			try {
 				Thread.sleep(THREAD_REGULATOR);
 			} catch (final Exception x) {
+			
 			}
-
 		}
+		
+		System.out.println("Game ended!");
 	}
 	
+	private void checkCollisions() {
+		
+		// Check all projectiles with enemy locations
+		for (Projectile proj : s.getProjs()){
+			for (Ship enemy : enemies){
+				
+				/*
+				 * If a collision is detected, objects should be
+				 * set invisible. Objects will be removed from
+				 * the list on the next invocation of moveGameObjects() 
+				 */
+				if (Kernel.collisionDetected(proj, enemy)){
+					proj.setVisible(false);
+					enemy.setVisible(false);
+				}
+			}
+		}
+		
+		for (Ship enemy : enemies){
+			if  (Kernel.collisionDetected(s, enemy)){
+				enemy.setVisible(false);
+				s.setVisible(false);
+				isGameRunning = false;
+			}
+		}
+		
+	}
+
 	/**
 	 * All subclasses must define how many enemies are created
 	 */

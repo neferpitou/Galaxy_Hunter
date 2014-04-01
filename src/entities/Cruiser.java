@@ -1,7 +1,6 @@
-package factory;
+package entities;
 
 import kernel.Kernel;
-import entities.Ship;
 
 public class Cruiser extends Ship {
 
@@ -11,7 +10,7 @@ public class Cruiser extends Ship {
 		super(Kernel.getInstance().loadImage("space_ship.jpg"), x, y);
 	}
 	
-	public void move(){
+	public void move() {
 		moveBy(0, SPEED);
 	}
 }

@@ -1,6 +1,6 @@
 package entities;
 
-import java.awt.image.BufferedImage;
+import java.awt.Image;
 
 import factory.ProjectileType;
 import kernel.Kernel;
@@ -8,7 +8,7 @@ import kernel.Kernel;
 
 public class Missile extends Projectile {
 
-	private static BufferedImage image = Kernel.getInstance().loadImage("space_ship.jpg");
+	private static Image image = Kernel.getInstance().loadImage("space_ship.jpg");
 	private static int SPEED = 10;
 	private static int DAMAGE = 5;
 	

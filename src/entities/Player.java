@@ -1,7 +1,6 @@
-package factory;
+package entities;
 
 import kernel.Kernel;
-import entities.Ship;
 
 public class Player extends Ship {
 

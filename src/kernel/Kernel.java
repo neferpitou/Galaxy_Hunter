@@ -1,10 +1,13 @@
 package kernel;
 
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 
+import entities.Entity;
 import levels.LevelOne;
 import main.GameFrame;
 
@@ -44,19 +47,11 @@ public class Kernel {
 	 * @param imgpath name of file on hard drive
 	 * @return an Image object that contains the image specified
 	 */
-	public BufferedImage loadImage(String imgpath) {
+	public Image loadImage(String imgpath) {
 		// Get the image and load it into memory. Resource path should be added
 		// to string here before finding the image
 		imgpath = "images/" + imgpath;
-		BufferedImage i = null;
-		try {
-			i = ImageIO.read(this.getClass().getClassLoader().getResource(imgpath));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return i;
+		return new ImageIcon(this.getClass().getClassLoader().getResource(imgpath)).getImage();
 	}
 	
 	public static Kernel getInstance(){
@@ -73,6 +68,28 @@ public class Kernel {
 
 	public static void startGame() {
 		new LevelOne();
+	}
+	
+	public static boolean collisionDetected(Entity e1, Entity e2) {
+
+		/*
+		 * Two rectangles do not overlap when one is above/below, or to the
+		 * left/right of the other rectangle.
+		 */
+		
+		int e1x1 = e1.getX();
+		int e1x2 = e1.getX()+e1.getWidth();
+		int e1y1 = e1.getY();
+		int e1y2 = e1.getY()+e1.getHeight();
+		int e2x1 = e2.getX();
+		int e2x2 = e2.getX()+e2.getWidth();
+		int e2y1 = e2.getY();
+		int e2y2 = e2.getY()+e2.getHeight();
+		
+		return ((e1x2 >= e2x1) &&
+			    (e1y2 >= e2y1) &&
+			    (e1x1 <= e2x2) &&
+			    (e1y1 <= e2y2));
 	}
 
 }
