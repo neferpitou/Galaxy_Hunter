@@ -1,12 +1,13 @@
 package levels;
 
 import entities.Cruiser;
+import factory.PlayerShipType;
 
 @SuppressWarnings("serial")
 public class LevelOne extends AbstractLevel  {
 
-	public LevelOne() {
-		super();
+	public LevelOne(PlayerShipType selected_ship) {
+		super(selected_ship);
 
 		generateEnemies();
 		

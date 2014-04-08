@@ -8,7 +8,9 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 import entities.Entity;
+import factory.PlayerShipType;
 import levels.LevelOne;
+import main.GalaxyHunterMenu;
 import main.GameFrame;
 
 
@@ -66,8 +68,12 @@ public class Kernel {
 		return frame;
 	}
 
-	public static void startGame() {
-		new LevelOne();
+	public static void startMenu() {
+		new GalaxyHunterMenu();
+	}
+	
+	public static void startGame(PlayerShipType selected_ship) {
+		new LevelOne(selected_ship);
 	}
 	
 	public static boolean collisionDetected(Entity e1, Entity e2) {

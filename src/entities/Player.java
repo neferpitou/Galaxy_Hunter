@@ -1,11 +1,12 @@
 package entities;
 
+import factory.PlayerShipType;
 import kernel.Kernel;
 
 public class Player extends Ship {
 
-	public Player(int x, int y) {
-		super(Kernel.getInstance().loadImage("space_ship.jpg"), x, y);
+	public Player(String shipIcon, int x, int y) {	
+		super(Kernel.getInstance().loadImage(shipIcon), x, y);
 		// TODO Auto-generated constructor stub
 	}
 

@@ -14,6 +14,7 @@ import main.GameFrame;
 import entities.Projectile;
 import entities.Ship;
 import entities.Cruiser;
+import factory.PlayerShipType;
 import factory.ProjectileType;
 import factory.ShipFactory;
 import factory.ShipType;
@@ -29,7 +30,7 @@ public abstract class AbstractLevel extends JPanel implements KeyListener, Runna
 	protected final int NUM_KEYS = 256;
 	protected final int THREAD_REGULATOR = 16;
 	protected final int SIDE_SCREEN_BUFFER = 0;
-	protected final Ship s = ShipFactory.spawnShip(ShipType.PLAYER, STARTING_X, STARTING_Y);
+	protected final Ship s;
 	protected final GameFrame frame = Kernel.getBaseJFrame();
 	protected boolean isGameRunning = true;
 	
@@ -38,8 +39,9 @@ public abstract class AbstractLevel extends JPanel implements KeyListener, Runna
 	protected final boolean[] isReleased = new boolean[NUM_KEYS];
 	final Graphics g = getGraphics();
 	
-	public AbstractLevel() {
+	public AbstractLevel(PlayerShipType selected_ship) {
 		
+		s = ShipFactory.spawnShip(selected_ship, STARTING_X, STARTING_Y);
 		new Thread(() -> {
 			for (int i = 0; i < isPressed.length; i++) {
 				isPressed[i] = false;
