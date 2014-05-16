@@ -2,6 +2,7 @@ package kernel;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -40,8 +41,23 @@ public class Kernel {
 	//Private instance reference of the kernel
 	private static final Kernel KERNEL_INSTANCE = new Kernel();
 	private static final GameFrame frame = new GameFrame();
-
-	private Kernel(){  }
+	private ThreadPool thread_pool;
+	private final int MAX_NUM_THREADS = 5;
+	private BGMRunnable bgm_thread;
+	
+	private Kernel(){
+		thread_pool = new ThreadPool(MAX_NUM_THREADS);
+		
+		// Instantiate two instances of each character (in case both players
+		// want to use the same character) in a worker thread
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			thread_pool.close();
+		}));
+		
+		thread_pool.runTask(() -> {
+			startMenu();
+		});
+	}
 	
 	/**
 	 * Returns an image with the filename specified.
@@ -76,6 +92,15 @@ public class Kernel {
 		new LevelOne(selected_ship);
 	}
 	
+	/**
+	 * Streams the desired resource from the resources folder
+	 * @param location location to stream from
+	 * @return an Input stream of the resource
+	 */
+	public BufferedInputStream loadResourceAsStream(String location){
+		return new BufferedInputStream(ClassLoader.getSystemResourceAsStream("resources/" + location));
+	}
+	
 	public static boolean collisionDetected(Entity e1, Entity e2) {
 
 		/*
@@ -97,5 +122,30 @@ public class Kernel {
 			    (e1x1 <= e2x2) &&
 			    (e1y1 <= e2y2));
 	}
+	
+	/**
+	 * Plays the specified file as looping background music in it's own thread.
+	 * @param filename name of the file to be played sitting in resources folder.
+	 */
+	public void playBGM(String filename) {
+		bgm_thread = new BGMRunnable(filename);
+		thread_pool.runTask(bgm_thread);
+	}
+		
+	
+	/**
+	 * Stops the background music from playing
+	 */
+	/*
+	 * Only stops the background music if there is a non-null Runnable instance in the kernel.
+	 * Every class that plays background music should stop the BGM before moving to the next 
+	 * screen.
+	 */
+	public boolean stopBGM() {
+		bgm_thread.halt();
+		thread_pool.removeTask(bgm_thread);
+		return true;	// signals that the bgm thread has been halted
+	}
+
 
 }

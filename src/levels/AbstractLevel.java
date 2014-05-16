@@ -14,15 +14,15 @@ import main.GameFrame;
 import entities.Projectile;
 import entities.Ship;
 import entities.Cruiser;
+import factory.GalacticFactory;
 import factory.PlayerShipType;
 import factory.ProjectileType;
-import factory.ShipFactory;
 import factory.ShipType;
 
 @SuppressWarnings("serial")
 public abstract class AbstractLevel extends JPanel implements KeyListener, Runnable {
-
-	protected final int MOVEMENT_SPEED = 10;
+	
+	protected int MOVEMENT_SPEED;
 	protected final int WIDTH = 400;
 	protected final int HEIGHT = 600;
 	protected final int STARTING_X = WIDTH / 2;
@@ -33,6 +33,7 @@ public abstract class AbstractLevel extends JPanel implements KeyListener, Runna
 	protected final Ship s;
 	protected final GameFrame frame = Kernel.getBaseJFrame();
 	protected boolean isGameRunning = true;
+	private final int COLLISION_DAMAGE = 30;
 	
 	protected ArrayList<Cruiser> enemies = new ArrayList<Cruiser>(10);
 	protected final boolean[] isPressed = new boolean[NUM_KEYS];
@@ -41,7 +42,9 @@ public abstract class AbstractLevel extends JPanel implements KeyListener, Runna
 	
 	public AbstractLevel(PlayerShipType selected_ship) {
 		
-		s = ShipFactory.spawnShip(selected_ship, STARTING_X, STARTING_Y);
+		s = GalacticFactory.spawnShip(selected_ship, STARTING_X, STARTING_Y);
+		MOVEMENT_SPEED = s.getSpeed();
+		
 		new Thread(() -> {
 			for (int i = 0; i < isPressed.length; i++) {
 				isPressed[i] = false;
@@ -67,10 +70,12 @@ public abstract class AbstractLevel extends JPanel implements KeyListener, Runna
 	@Override
 	public void keyPressed(final KeyEvent e) {
 		isPressed[e.getKeyCode()] = true;
+		isReleased[e.getKeyCode()] = false;
 	}
 
 	@Override
 	public void keyReleased(final KeyEvent e) {
+		isPressed[e.getKeyCode()] = false;
 		isReleased[e.getKeyCode()] = true;
 	}
 
@@ -102,6 +107,7 @@ public abstract class AbstractLevel extends JPanel implements KeyListener, Runna
 			
 			if (enemy.isVisible()){
 				enemy.move();
+				enemy.fire();
 			} else {
 				enemies.remove(i);
 			}
@@ -113,14 +119,12 @@ public abstract class AbstractLevel extends JPanel implements KeyListener, Runna
 			if (s.getY() - SIDE_SCREEN_BUFFER > SIDE_SCREEN_BUFFER) {
 				s.moveBy(0, -MOVEMENT_SPEED);
 			}
-			isPressed[KeyEvent.VK_UP] = false;
 		}
 
 		if (isPressed[KeyEvent.VK_DOWN]) {
 			if (s.getY() + s.getHeight() < HEIGHT) {
 				s.moveBy(0, MOVEMENT_SPEED);
 			}
-			isPressed[KeyEvent.VK_DOWN] = false;
 		}
 
 		if (isPressed[KeyEvent.VK_LEFT]) {
@@ -128,21 +132,18 @@ public abstract class AbstractLevel extends JPanel implements KeyListener, Runna
 				s.moveBy(-MOVEMENT_SPEED, 0);
 			}
 			
-			isPressed[KeyEvent.VK_LEFT] = false;
 		}
 
 		if (isPressed[KeyEvent.VK_RIGHT]) {
 			if (s.getX() + s.getWidth() <= WIDTH - SIDE_SCREEN_BUFFER) {
 				s.moveBy(MOVEMENT_SPEED, 0);
 			}
-			
-			isPressed[KeyEvent.VK_RIGHT] = false;
 		}
 		
 		// Projectile should only be shot on release
 		// User gets one projectile per press
 		if (isReleased[KeyEvent.VK_SPACE]) {
-			s.fire( ProjectileType.MISSILE );
+			s.fire( );
 			isReleased[KeyEvent.VK_SPACE] = false; 
 		}
 	}
@@ -156,8 +157,7 @@ public abstract class AbstractLevel extends JPanel implements KeyListener, Runna
 			respondToInput();
 			moveGameObjects();
 			checkCollisions();
-
-			this.repaint();
+			repaint();
 
 			try {
 				Thread.sleep(THREAD_REGULATOR);
@@ -165,8 +165,6 @@ public abstract class AbstractLevel extends JPanel implements KeyListener, Runna
 			
 			}
 		}
-		
-		System.out.println("Game ended!");
 	}
 	
 	private void checkCollisions() {
@@ -187,11 +185,32 @@ public abstract class AbstractLevel extends JPanel implements KeyListener, Runna
 			}
 		}
 		
+		for (int i = 0; i < enemies.size(); i++){
+			ArrayList<Projectile> projs = enemies.get(i).getEnemyProjs();
+			
+			for (Projectile p : projs){
+				if (Kernel.collisionDetected(p, s)){
+					p.setVisible(false);
+					s.reduceHealth(COLLISION_DAMAGE);
+					
+					if (s.getHealth() <= 0){
+						s.setVisible(false);
+						isGameRunning = false;
+					}
+				}
+			}
+			
+		}
+		
 		for (Ship enemy : enemies){
 			if  (Kernel.collisionDetected(s, enemy)){
 				enemy.setVisible(false);
-				s.setVisible(false);
-				isGameRunning = false;
+				s.reduceHealth(COLLISION_DAMAGE);
+				
+				if (s.getHealth() <= 0){
+					s.setVisible(false);
+					isGameRunning = false;
+				}
 			}
 		}
 		

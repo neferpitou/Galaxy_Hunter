@@ -1,5 +1,5 @@
 package factory;
 
 public enum ProjectileType {
-	MISSILE
+	MISSILE, ENERGY, LASERS
 }

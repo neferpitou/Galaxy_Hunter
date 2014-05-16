@@ -5,6 +5,7 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 
@@ -13,11 +14,10 @@ import javax.swing.JButton;
 import java.awt.GridBagLayout;
 
 import javax.swing.JRadioButton;
+import javax.swing.SwingConstants;
 
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -40,10 +40,11 @@ public class GalaxyHunterMenu extends JPanel {
 
 	private Image menu_background = kernel.loadImage("NGC_1569.jpg");
 	private PlayerShipType selected_ship = PlayerShipType.TALON;
+	private final int WIDTH = 500, HEIGHT = 500;
 
 	public GalaxyHunterMenu() {
 
-		frame.setPreferredSize(new Dimension(420, 420));
+		frame.setPreferredSize(new Dimension(WIDTH, HEIGHT));
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.setResizable(false);
 
@@ -53,21 +54,22 @@ public class GalaxyHunterMenu extends JPanel {
 					setBackground(Color.BLACK);
 					setLayout(new BorderLayout(0, 0));
 
+					JLabel title = new JLabel("GALAXY HUNTER");
+					title.setForeground(Color.WHITE);
+					title.setHorizontalAlignment(SwingConstants.CENTER);
+					title.setFont( new Font("Serif", Font.BOLD, 20) );
+					add(title, BorderLayout.NORTH);
+					
 					JButton btnStartGame = new JButton("Start Game");
 					btnStartGame.addActionListener((e)->{
 						frame.dispose();
 						Kernel.startGame(selected_ship);
 					});
+					
 					add(btnStartGame, BorderLayout.SOUTH);
 
-					JPanel panel = new JPanel() {
-						@Override
-						public void paintComponent(Graphics g) {
-							g.drawImage(menu_background, 0, 0, null);
-						}
-					};
-
-					panel.setBackground(Color.BLACK);
+					JPanel panel = new JPanel();
+					panel.setOpaque(false);
 					add(panel, BorderLayout.CENTER);
 					GridBagLayout gbl_panel = new GridBagLayout();
 					gbl_panel.columnWidths = new int[] { 0, 0, 0, 0, 0, 0, 0,
@@ -201,6 +203,8 @@ public class GalaxyHunterMenu extends JPanel {
 		Style style = textPane.addStyle("", null);
 		StyledDocument doc = textPane.getStyledDocument();
 		StyleConstants.setForeground(style, color);
+		StyleConstants.setBackground(style, new Color(0,0,0,128));
+		StyleConstants.setBold(style, true);
 		
 		try {
 			doc.insertString(doc.getLength(), info, style);
@@ -211,6 +215,11 @@ public class GalaxyHunterMenu extends JPanel {
 
 	private ImageIcon loadShipImage(String imgpath) {
 		return new ImageIcon(kernel.loadImage(imgpath));
+	}
+	
+	@Override
+	public void paintComponent(Graphics g) {
+		g.drawImage(menu_background, 0, 0, getWidth(), getHeight(), null);
 	}
 
 }

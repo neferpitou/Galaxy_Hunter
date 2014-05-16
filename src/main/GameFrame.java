@@ -10,14 +10,12 @@ import kernel.Kernel;
 @SuppressWarnings("serial")
 public class GameFrame extends JFrame {
 
-	private final Image galaxy_image;
+	private Image galaxy_image;
 	private int g_img_y, c_img_y;
 	private final int img_height;
 
 	public GameFrame() {
-		// Ask the kernel to load the image
-		galaxy_image = Kernel.getInstance().loadImage(
-				"stars_texture2956.jpg");
+		setBackgroundImage("Messier_30.jpg");
 
 		// Set the location for the first image at the bottom of the screen
 		g_img_y = HEIGHT;
@@ -25,6 +23,15 @@ public class GameFrame extends JFrame {
 
 		// Set the location of the second image above the first image
 		c_img_y = HEIGHT - img_height;
+	}
+
+	public void setBackgroundImage(String string) {
+		galaxy_image = Kernel.getInstance().loadImage(string);
+	}
+	
+	public void drawGameOver(final Graphics g){
+		galaxy_image = Kernel.getInstance().loadImage("game_over.jpg");
+		g.drawImage(galaxy_image, 0, Kernel.WIDTH / 2, null);
 	}
 
 	public void draw(final Graphics g) {
